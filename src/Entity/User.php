@@ -15,7 +15,7 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
     private ?string $lastName = null;
@@ -28,14 +28,14 @@ class User
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->name;
+        return $this->firstName;
     }
 
-    public function setName(string $name): static
+    public function setFirstName(string $firstName): static
     {
-        $this->name = $name;
+        $this->firstName = $firstName;
 
         return $this;
     }
