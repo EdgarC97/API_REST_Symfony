@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\ImageUploader;
+use App\Service\ImageUploaderService;
 
 #[Route('/api/users')]
 class UserController extends AbstractController
@@ -93,5 +96,29 @@ class UserController extends AbstractController
         $this->em->flush();
 
         return $this->json(['message' => 'Usuario eliminado'], 204);
+    }
+
+    #[Route('/{id}/upload-image', name: 'api_users_upload_image', methods: ['POST'])]
+    public function uploadImage(int $id, Request $request, ImageUploaderService $uploader): JsonResponse
+    {
+        $user = $this->userRepository->find($id);
+
+        if (!$user) {
+            return $this->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('image');
+
+        if (!$file || !$file->isValid()) {
+            return $this->json(['error' => 'Imagen inválida o no enviada'], 400);
+        }
+
+        $imagePath = $uploader->upload($file);
+        $user->setProfileImage($imagePath);
+
+        $this->em->flush();
+
+        return $this->json(['message' => 'Imagen subida', 'path' => $imagePath]);
     }
 }
